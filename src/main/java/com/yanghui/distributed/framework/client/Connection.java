@@ -1,0 +1,323 @@
+package com.yanghui.distributed.framework.client;
+
+import com.alibaba.fastjson.JSONObject;
+import com.yanghui.distributed.framework.codec.RainofflowerProtocolDecoder;
+import com.yanghui.distributed.framework.codec.RainofflowerProtocolEncoder;
+import com.yanghui.distributed.framework.common.RpcConstants;
+import com.yanghui.distributed.framework.common.SystemInfo;
+import com.yanghui.distributed.framework.common.struct.NamedThreadFactory;
+import com.yanghui.distributed.framework.common.util.CommonUtils;
+import com.yanghui.distributed.framework.transport.TransportInfo;
+import com.yanghui.distributed.framework.context.RpcInvokeContext;
+import com.yanghui.distributed.framework.core.Request;
+import com.yanghui.distributed.framework.core.Response;
+import com.yanghui.distributed.framework.core.ResponseStatus;
+import com.yanghui.distributed.framework.core.exception.ErrorType;
+import com.yanghui.distributed.framework.core.exception.RpcException;
+import com.yanghui.distributed.framework.future.InvokeFuture;
+import com.yanghui.distributed.framework.protocol.rainofflower.Rainofflower;
+import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.PooledByteBufAllocator;
+import io.netty.channel.*;
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.SocketChannel;
+import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.util.AttributeKey;
+import lombok.extern.slf4j.Slf4j;
+
+import java.lang.reflect.Method;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static com.yanghui.distributed.framework.common.RpcConfigs.getIntValue;
+import static com.yanghui.distributed.framework.common.RpcOptions.CONSUMER_CONNECTION_THREADS;
+
+/**
+ * 消费者与服务提供者的连接
+ * @author YangHui
+ */
+@Slf4j
+public class Connection {
+
+    public static final AttributeKey<Connection> CONNECTION = AttributeKey.valueOf("connection");
+
+    /**
+     * io线程池，消费者所有连接共用（当有大量连接时，每个都分配线程池资源将耗尽）
+     */
+    protected static final EventLoopGroup EVENT_EXECUTORS = new NioEventLoopGroup(Math.max(SystemInfo.CORES, getIntValue(CONSUMER_CONNECTION_THREADS)));
+
+    /**
+     * 连接信息
+     */
+    private TransportInfo transportInfo;
+
+    /**
+     * 连接通道
+     */
+    private Channel channel;
+
+    /**
+     * 请求id与请求映射
+     */
+    private final ConcurrentMap<Integer, InvokeFuture> invokeFutureMap = new ConcurrentHashMap<>();
+
+    /**
+     * 当前正常处理的请求数
+     */
+    protected AtomicInteger currentRequests = new AtomicInteger(0);
+
+
+    public Connection(TransportInfo transportInfo){
+        this.transportInfo = transportInfo;
+    }
+
+    /**
+     * 连接服务端
+     */
+    public void connect(){
+        Bootstrap b = new Bootstrap();
+        final RpcClientHandler rpcClientHandler = new RpcClientHandler();
+        b.group(EVENT_EXECUTORS)
+                .channel(NioSocketChannel.class)
+                .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
+                .option(ChannelOption.TCP_NODELAY, true)
+                .handler(new ChannelInitializer<SocketChannel>() {
+                    @Override
+                    protected void initChannel(SocketChannel channel) throws Exception {
+                        channel.pipeline()
+                                .addLast(new RainofflowerProtocolDecoder())
+                                .addLast(new RainofflowerProtocolEncoder())
+                                .addLast(rpcClientHandler);
+                    }
+                });
+        ChannelFuture channelFuture = b.connect(transportInfo.getHost(), transportInfo.getPort()).syncUninterruptibly();
+        channel = channelFuture.channel();
+        //连接成功之后设置连接id到transportInfo中
+        transportInfo.setId(channel.id().asLongText());
+        channel.attr(CONNECTION).set(this);
+    }
+
+    /**
+     * 关闭连接
+     */
+    public void disconnect(){
+        if(channel != null){
+            channel.close().addListener((ChannelFuture future) ->{
+                if(future.isSuccess()){
+                    log.info("连接已关闭，地址：{}", channel.remoteAddress());
+                }
+            });
+        }
+    }
+
+    public InvokeFuture getInvokeFuture(int id){
+       return invokeFutureMap.get(id);
+    }
+
+    public InvokeFuture putInvokeFuture(int id, InvokeFuture future){
+        return invokeFutureMap.putIfAbsent(id, future);
+    }
+
+    public InvokeFuture removeInvokeFuture(int id){
+        return invokeFutureMap.remove(id);
+    }
+
+    public void oneWaySend(Request request){
+        RpcInvokeContext invokeContext = RpcInvokeContext.getContext();
+        try {
+            beforeSend(request);
+            buildBizMessage(request, true);
+            channel.writeAndFlush(request.getMessage()).addListener((ChannelFuture future) -> {
+                if(!future.isSuccess()){
+                    Channel channel = future.channel();
+                    if(channel != null){
+                        log.error("发送失败，地址：{}, 异常：",channel.remoteAddress(),future.cause());
+                    }
+                }
+            });
+        }catch (Exception e){
+            if(channel != null){
+                log.error("发送失败，地址：{}, 异常：",channel.remoteAddress(),e);
+            }
+        }finally {
+            afterSend(request,invokeContext);
+        }
+    }
+
+    public Response syncSend(Request request, long timeout) {
+        RpcInvokeContext invokeContext = RpcInvokeContext.getContext();
+        try {
+            beforeSend(request);
+            buildBizMessage(request, false);
+            InvokeFuture invokeFuture = invokeContext.getInvokeFuture();
+            Connection connection = channel.attr(Connection.CONNECTION).get();
+            connection.putInvokeFuture(invokeFuture.getInvokeId(), invokeFuture);
+            try {
+                channel.writeAndFlush(request.getMessage()).addListener((ChannelFuture future) -> {
+                    //发送失败
+                    if (!future.isSuccess()) {
+                        InvokeFuture f = connection.removeInvokeFuture(invokeFuture.getInvokeId());
+                        if (f != null) {
+                            f.setFailure(future.cause());
+                            Channel channel = future.channel();
+                            if (channel != null) {
+                                log.error("发送失败，地址：{}, 异常：", channel.remoteAddress(), future.cause());
+                            }
+                        }
+                    }
+                });
+            } catch (Exception e) {
+                InvokeFuture f = connection.removeInvokeFuture(invokeFuture.getInvokeId());
+                if (f != null) {
+                    f.setFailure(e);
+                }
+                if (channel != null) {
+                    log.error("发送失败，地址：{}, 异常：", channel.remoteAddress(), e);
+                }
+            }
+            Object result = null;
+            try {
+                result = invokeFuture.get(timeout, TimeUnit.MILLISECONDS);
+            } catch (ExecutionException e) {
+                //处理失败
+                return new Response()
+                        .setCause(e)
+                        .setStatus(ResponseStatus.ERROR);
+            } catch (TimeoutException e) {
+                //超时
+                return new Response()
+                        .setStatus(ResponseStatus.TIMEOUT);
+            }
+            return new Response()
+                    .setResult(result);
+        }finally {
+            afterSend(request, invokeContext);
+        }
+    }
+
+    public void asyncSend(Request request, long timeout){
+        RpcInvokeContext invokeContext = RpcInvokeContext.getContext();
+        InvokeFuture invokeFuture = invokeContext.getInvokeFuture();
+        Connection connection = channel.attr(Connection.CONNECTION).get();
+        try {
+            beforeSend(request);
+            buildBizMessage(request, false);
+            connection.putInvokeFuture(invokeFuture.getInvokeId(), invokeFuture);
+            ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1, new NamedThreadFactory("future-requestId-" + request.getId() + "-timeout-monitor"));
+            invokeFuture.setScheduleExecutor(executor);
+            channel.writeAndFlush(request.getMessage()).addListener((ChannelFuture future) -> {
+                //发送失败
+                if (!future.isSuccess()) {
+                    InvokeFuture f = connection.removeInvokeFuture(invokeFuture.getInvokeId());
+                    if(f != null){
+                        f.cancelTimeOut();
+                        f.setFailure(future.cause());
+                        Channel channel = future.channel();
+                        if(channel != null){
+                            log.error("发送失败，地址：{}, 异常：",channel.remoteAddress(),future.cause());
+                        }
+                    }
+                }
+            });
+            executor.schedule(()->{
+                InvokeFuture f = connection.removeInvokeFuture(invokeFuture.getInvokeId());
+                if(f != null){
+                    f.cancelTimeOut();
+                    f.setFailure(new RpcException(ErrorType.CLIENT_TIMEOUT, "获取结果超时"));
+                }
+            }, timeout, TimeUnit.MILLISECONDS);
+        }catch (Exception e) {
+            InvokeFuture f = connection.removeInvokeFuture(invokeFuture.getInvokeId());
+            if (f != null) {
+                f.cancelTimeOut();
+                f.setFailure(e);
+            }
+            if(channel != null){
+                log.error("发送失败，地址：{}, 异常：",channel.remoteAddress(),e);
+            }
+        }finally {
+            afterSend(request, invokeContext);
+        }
+    }
+
+    /**
+     * 发送请求之前的处理
+     * @param request 请求
+     */
+    protected void beforeSend(Request request){
+        currentRequests.incrementAndGet();
+        //other
+    }
+
+    /**
+     * 发送请求之后的处理
+     * @param request 请求
+     * @param invokeContext 考虑到异步线程切换，故多传一个执行线程上下文
+     */
+    protected void afterSend(Request request, RpcInvokeContext invokeContext){
+        currentRequests.decrementAndGet();
+        //other
+    }
+
+    /**
+     * 当前请求数
+     * @return
+     */
+    public int currentRequests(){
+        return currentRequests.get();
+    }
+
+    /**
+     * to check whether the connection is fine to use
+     *
+     * @return
+     */
+    public boolean isFine() {
+        return this.channel != null && this.channel.isActive();
+    }
+
+    public Channel getChannel() {
+        return channel;
+    }
+
+    public TransportInfo getTransportInfo() {
+        return transportInfo;
+    }
+
+    private void buildBizMessage(Request request, boolean oneWay){
+        Rainofflower.Message.Builder requestBuilder = Rainofflower.Message.newBuilder();
+        Rainofflower.Header.Builder headBuilder = Rainofflower.Header.newBuilder();
+        if(oneWay){
+            headBuilder.setType(Rainofflower.HeadType.BIZ_ONE_WAY);
+        }else{
+            headBuilder.setType(Rainofflower.HeadType.BIZ_REQUEST);
+        }
+        Rainofflower.Header header = headBuilder.setPriority(1)
+                .putAttachment(RpcConstants.REQUEST_ID, request.getId() + "")
+                .build();
+        Rainofflower.BizRequest.Builder contentBuilder = Rainofflower.BizRequest.newBuilder();
+        Method method = request.getMethod();
+        Type[] parameterTypes = method.getGenericParameterTypes();
+        List<String> paramTypeStrList = new ArrayList<>();
+        List<String> argsJsonList = new ArrayList<>();
+        if(!CommonUtils.isEmpty(parameterTypes)){
+            Object[] args = request.getArgs();
+            for(int i = 0; i<parameterTypes.length; i++){
+                paramTypeStrList.add(parameterTypes[i].getTypeName());
+                argsJsonList.add(JSONObject.toJSONString(args[i]));
+            }
+        }
+        Rainofflower.BizRequest content = contentBuilder.setInterfaceName(method.getDeclaringClass().getName())
+                .setMethodName(method.getName())
+                .addAllParamTypes(paramTypeStrList)
+                .addAllArgs(argsJsonList)
+                .build();
+        Rainofflower.Message message = requestBuilder.setHeader(header)
+                .setBizRequest(content)
+                .build();
+        request.setMessage(message);
+    }
+}
