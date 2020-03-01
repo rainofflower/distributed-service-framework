@@ -55,7 +55,7 @@ public class CommonTest {
         MethodProviderInfo methodProviderInfo1 = new MethodProviderInfo().setHost(host).setPort(port);
         ConnectionUrl connectionUrl = new ConnectionUrl().setHost(host).setPort(port);
         ConnectionUrl connectionUrl1 = new ConnectionUrl().setHost(host).setPort(port);
-
+        System.out.println(Object.class.isAssignableFrom(MethodProviderInfo.class));
         HashMap<ConnectionUrl, Object> map = new HashMap<>();
         map.put(connectionUrl,2);
         map.put(connectionUrl1,3);

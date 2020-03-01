@@ -10,7 +10,7 @@ public class RpcOptions {
     /**
      * 决定本配置文件的加载顺序，越大越往后加载
      */
-    public static final String RPC_CFG_ORDER                            = "framework.config.order";
+    public static final String RPC_CFG_ORDER                            = "rpc.config.order";
 
     /**
      * 需要被加载的模块列表，多个用逗号隔开

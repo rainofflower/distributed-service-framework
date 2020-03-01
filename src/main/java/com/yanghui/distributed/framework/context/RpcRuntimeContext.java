@@ -41,7 +41,7 @@ public class RpcRuntimeContext {
         // 初始化一些上下文
         initContext();
 
-        // 增加jvm关闭事
+        // 增加jvm关闭事件
         if (RpcConfigs.getOrDefaultValue(RpcOptions.JVM_SHUTDOWN_HOOK, true)) {
             Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
                 @Override
