@@ -13,7 +13,7 @@ public interface Server{
 
     void init(ServerConfig config);
 
-    void start();
+    boolean start();
 
     void stop();
 

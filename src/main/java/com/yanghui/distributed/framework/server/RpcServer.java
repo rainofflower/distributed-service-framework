@@ -47,7 +47,7 @@ public class RpcServer implements Server{
     protected Map<Method, CommandHandlerPipeline> bizPipelineMap = new ConcurrentHashMap<>();
 
     @Override
-    public void init(ServerConfig serverConfig) {
+    public synchronized void init(ServerConfig serverConfig) {
         this.serverConfig = serverConfig;
         defaultBizThreadPool = new ThreadPoolExecutor(serverConfig.getCoreThreads(),
                 serverConfig.getMaxThreads(),
@@ -97,8 +97,12 @@ public class RpcServer implements Server{
     }
 
     @Override
-    public void start(){
+    public synchronized boolean start(){
+        if(this.channelFuture != null && this.channelFuture.isSuccess()){
+            return true;
+        }
         this.channelFuture = this.bootstrap.bind(new InetSocketAddress(serverConfig.getBoundHost(), serverConfig.getPort())).syncUninterruptibly();
+        return this.channelFuture.isSuccess();
     }
 
     public void registryBizPipeline(Method methodInfo, CommandHandlerPipeline commandHandlerPipeline){
