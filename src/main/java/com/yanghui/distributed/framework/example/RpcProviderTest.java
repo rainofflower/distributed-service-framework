@@ -18,6 +18,7 @@ public class RpcProviderTest {
         try {
             ServerConfig serverConfig = new ServerConfig()
                     .setProtocol(RpcConstants.PROTOCOL_TYPE_RAINOFFLOWER)
+                    .setHost("localhost")
                     .setPort(8200)
                     .setAliveTime(6000)
                     .setCoreThreads(5)
@@ -25,13 +26,13 @@ public class RpcProviderTest {
                     .setMaxThreads(10)
                     .setQueues(2000)
                     .setIdleTime(150);
-            RegistryConfig registryConfig = new RegistryConfig()
-                    .setAddress("192.168.43.151:2181");
+//            RegistryConfig registryConfig = new RegistryConfig()
+//                    .setAddress("192.168.43.151:2181");
             ProviderConfig<EchoService> providerConfig = new ProviderConfig<EchoService>()
                     .setServer(serverConfig)
                     .setRef(new EchoServiceImpl())
-                    .setInterfaceName(EchoService.class.getName())
-                    .setRegistry(Collections.singletonList(registryConfig));
+                    .setInterfaceName(EchoService.class.getName());
+//                    .setRegistry(Collections.singletonList(registryConfig));
                     //排除某个方法
 //                    .setExclude("friend");
             providerConfig.export();
