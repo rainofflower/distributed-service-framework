@@ -18,7 +18,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Created by YangHui on 2019/11/22
+ * YangHui on 2019/11/22
  */
 @Slf4j
 public class RpcConsumerTest {
