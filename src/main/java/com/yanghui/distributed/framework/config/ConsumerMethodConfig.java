@@ -1,6 +1,6 @@
 package com.yanghui.distributed.framework.config;
 
-import com.yanghui.distributed.framework.future.Listener;
+import com.yanghui.distributed.framework.concurrent.Listener;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;

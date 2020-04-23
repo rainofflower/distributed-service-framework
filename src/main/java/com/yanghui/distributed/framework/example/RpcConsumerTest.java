@@ -6,8 +6,8 @@ import com.yanghui.distributed.framework.config.RegistryConfig;
 import com.yanghui.distributed.framework.context.RpcInvokeContext;
 import com.yanghui.distributed.framework.core.ResponseFuture;
 import com.yanghui.distributed.framework.core.exception.RpcException;
-import com.yanghui.distributed.framework.future.Future;
-import com.yanghui.distributed.framework.future.Listener;
+import com.yanghui.distributed.framework.concurrent.Future;
+import com.yanghui.distributed.framework.concurrent.Listener;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Method;
@@ -60,7 +60,7 @@ public class RpcConsumerTest {
                     .setProtocol(RpcConstants.PROTOCOL_TYPE_RAINOFFLOWER)
                     .setInterfaceName(EchoService.class.getName())
                     .setTimeout(3000)
-                    .setDirectUrl("192.168.43.117:8200");
+                    .setDirectUrl("localhost:8200");
             Method echo = EchoService.class.getMethod("echo", String.class);
             EchoService echoServiceFuture = consumerConfigFuture.refer();
             echoServiceFuture.echo("future调用");

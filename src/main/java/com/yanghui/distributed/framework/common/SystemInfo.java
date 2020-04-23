@@ -1,4 +1,3 @@
-
 package com.yanghui.distributed.framework.common;
 
 import com.yanghui.distributed.framework.common.util.NetUtils;
@@ -35,7 +34,7 @@ public class SystemInfo {
     /**
      * 机器逻辑核心数
      */
-    public static final int CORES = Runtime.getRuntime().availableProcessors();
+    public static final int CORES = getCpuCores();
 
     static {
         boolean[] os = parseOSName();

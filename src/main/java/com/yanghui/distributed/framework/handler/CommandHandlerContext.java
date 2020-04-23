@@ -30,7 +30,7 @@ public class CommandHandlerContext {
     }
 
 
-    public CommandHandlerContext invokerCommand(Object msg){
+    protected CommandHandlerContext invokerCommand(Object msg){
         if(this.pipeline.STATE_UPDATER.get(this.pipeline) != CommandHandlerPipeline.PROCESSING){
             this.pipeline.setProcessing();
         }

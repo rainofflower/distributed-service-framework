@@ -1,3 +1,4 @@
+import com.yanghui.distributed.framework.common.SystemInfo;
 import com.yanghui.distributed.framework.example.EchoService;
 import com.yanghui.distributed.framework.client.ConnectionUrl;
 import com.yanghui.distributed.framework.client.MethodProviderInfo;

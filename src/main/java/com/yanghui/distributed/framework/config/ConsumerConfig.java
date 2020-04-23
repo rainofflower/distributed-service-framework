@@ -3,7 +3,7 @@ package com.yanghui.distributed.framework.config;
 import com.yanghui.distributed.framework.bootstrap.ConsumerBootstrap;
 import com.yanghui.distributed.framework.client.MethodInfo;
 import com.yanghui.distributed.framework.client.router.Router;
-import com.yanghui.distributed.framework.future.Listener;
+import com.yanghui.distributed.framework.concurrent.Listener;
 import com.yanghui.distributed.framework.listener.MethodProviderListener;
 
 import java.io.Serializable;

@@ -1,7 +1,7 @@
-import com.yanghui.distributed.framework.future.ClientCallbackExecutor;
-import com.yanghui.distributed.framework.future.DefaultPromise;
-import com.yanghui.distributed.framework.future.Future;
-import com.yanghui.distributed.framework.future.Listener;
+import com.yanghui.distributed.framework.concurrent.ClientCallbackExecutor;
+import com.yanghui.distributed.framework.concurrent.DefaultPromise;
+import com.yanghui.distributed.framework.concurrent.Future;
+import com.yanghui.distributed.framework.concurrent.Listener;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 

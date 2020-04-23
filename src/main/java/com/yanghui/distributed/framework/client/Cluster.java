@@ -14,9 +14,9 @@ import com.yanghui.distributed.framework.core.ResponseStatus;
 import com.yanghui.distributed.framework.core.exception.ErrorType;
 import com.yanghui.distributed.framework.core.exception.RouteException;
 import com.yanghui.distributed.framework.core.exception.RpcException;
-import com.yanghui.distributed.framework.future.ClientCallbackExecutor;
-import com.yanghui.distributed.framework.future.InvokeFuture;
-import com.yanghui.distributed.framework.future.Listener;
+import com.yanghui.distributed.framework.concurrent.ClientCallbackExecutor;
+import com.yanghui.distributed.framework.concurrent.InvokeFuture;
+import com.yanghui.distributed.framework.concurrent.Listener;
 import com.yanghui.distributed.framework.invoke.Invoker;
 import com.yanghui.distributed.framework.listener.MethodProviderListener;
 
@@ -137,7 +137,7 @@ public abstract class Cluster implements Invoker, MethodProviderListener {
                     return response;
                 }
             }
-            //future
+            //concurrent
             else if (RpcConstants.INVOKER_TYPE_FUTURE.equals(invokeType)) {
                 connection.asyncSend(request, timeout);
                 return buildEmptyResponse();

@@ -1,4 +1,4 @@
-package com.yanghui.distributed.framework.future;
+package com.yanghui.distributed.framework.concurrent;
 
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;

@@ -3,7 +3,7 @@ package com.yanghui.distributed.framework.core;
 import com.yanghui.distributed.framework.context.RpcInvokeContext;
 import com.yanghui.distributed.framework.core.exception.ErrorType;
 import com.yanghui.distributed.framework.core.exception.RpcException;
-import com.yanghui.distributed.framework.future.InvokeFuture;
+import com.yanghui.distributed.framework.concurrent.InvokeFuture;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;

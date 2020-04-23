@@ -1,4 +1,4 @@
-package com.yanghui.distributed.framework.future;
+package com.yanghui.distributed.framework.concurrent;
 
 import com.yanghui.distributed.framework.common.struct.NamedThreadFactory;
 

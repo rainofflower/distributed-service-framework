@@ -96,9 +96,9 @@ public class RpcConstants {
      */
     public static final String  INVOKER_TYPE_CALLBACK              = "callback";
     /**
-     * 调用方式：future
+     * 调用方式：concurrent
      */
-    public static final String  INVOKER_TYPE_FUTURE                = "future";
+    public static final String  INVOKER_TYPE_FUTURE                = "concurrent";
 
     /**
      * 集群容错方式：失败切换

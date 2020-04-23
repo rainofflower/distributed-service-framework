@@ -1,4 +1,4 @@
-package com.yanghui.distributed.framework.future;
+package com.yanghui.distributed.framework.concurrent;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;

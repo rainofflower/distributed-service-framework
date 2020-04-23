@@ -14,7 +14,7 @@ import com.yanghui.distributed.framework.core.Response;
 import com.yanghui.distributed.framework.core.ResponseStatus;
 import com.yanghui.distributed.framework.core.exception.ErrorType;
 import com.yanghui.distributed.framework.core.exception.RpcException;
-import com.yanghui.distributed.framework.future.InvokeFuture;
+import com.yanghui.distributed.framework.concurrent.InvokeFuture;
 import com.yanghui.distributed.framework.protocol.rainofflower.Rainofflower;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
@@ -206,7 +206,7 @@ public class Connection {
             beforeSend(request);
             buildBizMessage(request, false);
             connection.putInvokeFuture(invokeFuture.getInvokeId(), invokeFuture);
-            ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1, new NamedThreadFactory("future-requestId-" + request.getId() + "-timeout-monitor"));
+            ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1, new NamedThreadFactory("concurrent-requestId-" + request.getId() + "-timeout-monitor"));
             invokeFuture.setScheduleExecutor(executor);
             channel.writeAndFlush(request.getMessage()).addListener((ChannelFuture future) -> {
                 //发送失败
