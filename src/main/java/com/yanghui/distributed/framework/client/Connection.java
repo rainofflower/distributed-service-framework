@@ -206,7 +206,7 @@ public class Connection {
             beforeSend(request);
             buildBizMessage(request, false);
             connection.putInvokeFuture(invokeFuture.getInvokeId(), invokeFuture);
-            ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1, new NamedThreadFactory("concurrent-requestId-" + request.getId() + "-timeout-monitor"));
+            ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1, new NamedThreadFactory("future-requestId-" + request.getId() + "-timeout-monitor"));
             invokeFuture.setScheduleExecutor(executor);
             channel.writeAndFlush(request.getMessage()).addListener((ChannelFuture future) -> {
                 //发送失败

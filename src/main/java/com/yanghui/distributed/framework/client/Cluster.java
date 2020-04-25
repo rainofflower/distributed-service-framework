@@ -137,7 +137,7 @@ public abstract class Cluster implements Invoker, MethodProviderListener {
                     return response;
                 }
             }
-            //concurrent
+            //future
             else if (RpcConstants.INVOKER_TYPE_FUTURE.equals(invokeType)) {
                 connection.asyncSend(request, timeout);
                 return buildEmptyResponse();

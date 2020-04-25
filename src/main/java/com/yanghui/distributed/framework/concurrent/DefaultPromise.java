@@ -17,7 +17,7 @@ public class DefaultPromise<T> implements Promise<T> {
      */
     private volatile int state;
 
-    private static final AtomicIntegerFieldUpdater STATE_UPDATEER = AtomicIntegerFieldUpdater.newUpdater(DefaultPromise.class, "state");
+    private static final AtomicIntegerFieldUpdater STATE_UPDATER = AtomicIntegerFieldUpdater.newUpdater(DefaultPromise.class, "state");
 
     /**
      * 初始状态
@@ -107,7 +107,7 @@ public class DefaultPromise<T> implements Promise<T> {
 
     @Override
     public Future<T> setSuccess(T result) {
-        if(STATE_UPDATEER.compareAndSet(this, NEW , SUCCESS)){
+        if(STATE_UPDATER.compareAndSet(this, NEW , SUCCESS)){
             this.result = result;
             notifyAllWaits();
             notifyAllListeners();
@@ -117,7 +117,7 @@ public class DefaultPromise<T> implements Promise<T> {
 
     @Override
     public void setFailure(Throwable failure) {
-        if(STATE_UPDATEER.compareAndSet(this, NEW , FAILED)){
+        if(STATE_UPDATER.compareAndSet(this, NEW , FAILED)){
             cause = failure;
             notifyAllWaits();
             notifyAllListeners();
@@ -205,7 +205,7 @@ public class DefaultPromise<T> implements Promise<T> {
 
     @Override
     public boolean cancel(boolean mayInterruptIfRunning) {
-        return STATE_UPDATEER.compareAndSet(this, NEW , CANCELLED);
+        return STATE_UPDATER.compareAndSet(this, NEW , CANCELLED);
     }
 
     @Override
