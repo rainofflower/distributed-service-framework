@@ -27,6 +27,7 @@ public class RpcServerDispatchHandler extends SimpleChannelInboundHandler {
         this.server = server;
     }
 
+    @Override
     public void channelRead0(ChannelHandlerContext ctx, Object msg){
 //        String protocol = ctx.channel().attr(Server.PROTOCOL).get();
         Rainofflower.Message message = (Rainofflower.Message) msg;
@@ -49,5 +50,14 @@ public class RpcServerDispatchHandler extends SimpleChannelInboundHandler {
         }
         bizPipeline.setChannelHandlerContext(ctx)
                 .fireHandleCommand(message);
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        if(cause instanceof RpcException){
+            log.error("[RpcServerDispatchHandler] {}",cause.getMessage());
+        }else{
+            log.error("[RpcServerDispatchHandler] ",cause);
+        }
     }
 }

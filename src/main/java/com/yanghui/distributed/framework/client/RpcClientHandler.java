@@ -20,6 +20,7 @@ import java.util.concurrent.Executor;
 @Slf4j
 public class RpcClientHandler extends ChannelInboundHandlerAdapter {
 
+    @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         Rainofflower.Message message = (Rainofflower.Message)msg;
         Rainofflower.BizResponse bizResponse = message.getBizResponse();
