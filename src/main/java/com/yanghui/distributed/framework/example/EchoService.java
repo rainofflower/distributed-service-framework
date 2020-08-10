@@ -15,4 +15,10 @@ public interface EchoService {
     void oneWayTest(List<User> users, String name);
 
     String test2();
+
+    User getUserByName(String name);
+
+    List<User> listUser(String name);
+
+    List<User> matchUser(List<User> users, String name);
 }

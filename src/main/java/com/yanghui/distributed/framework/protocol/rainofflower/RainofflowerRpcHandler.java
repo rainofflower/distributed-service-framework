@@ -28,17 +28,17 @@ public class RainofflowerRpcHandler extends CommandHandlerAdapter {
     }
 
     public void handleCommand(CommandHandlerContext ctx, Object msg){
-        log.info("收到远程服务调用：\n{}",msg);
+//        log.info("收到远程服务调用：\n{}",msg);
         Rainofflower.Message message = (Rainofflower.Message) msg;
         Rainofflower.BizRequest bizRequest = message.getBizRequest();
         Method method = ctx.getMethod();
         //兼容泛型
-        Type[] genericParameterTypes = method.getGenericParameterTypes();
-        int paramCount = genericParameterTypes.length;
+        Type[] parameterTypes = method.getGenericParameterTypes();
+        int paramCount = parameterTypes.length;
         final Object[] args = new Object[paramCount];
         ProtocolStringList argsList = bizRequest.getArgsList();
         for(int i = 0; i<paramCount; i++){
-            args[i] = JSONObject.parseObject(argsList.get(i), genericParameterTypes[i]);
+            args[i] = JSONObject.parseObject(argsList.get(i), parameterTypes[i]);
         }
         //oneWay调用
         if(message.getHeader().getType().getNumber() == Rainofflower.HeadType.BIZ_ONE_WAY.getNumber()){
@@ -63,6 +63,7 @@ public class RainofflowerRpcHandler extends CommandHandlerAdapter {
                 Object result = method.invoke(service, args);
                 contentBuilder.setCode(0)
                         .setInfo("成功")
+                        .setReturnType(method.getReturnType().getName())
                         .setResult(JSONObject.toJSONString(result));
             } catch (IllegalAccessException e) {
                 log.error("没有该方法权限：",e);
@@ -83,7 +84,7 @@ public class RainofflowerRpcHandler extends CommandHandlerAdapter {
                 }
             });
         }
-        ctx.fireHandleCommand(msg);
+//        ctx.fireHandleCommand(msg);
     }
 
     public Object getService() {

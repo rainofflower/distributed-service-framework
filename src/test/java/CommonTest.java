@@ -1,3 +1,4 @@
+import com.alibaba.fastjson.JSON;
 import com.yanghui.distributed.framework.common.SystemInfo;
 import com.yanghui.distributed.framework.example.EchoService;
 import com.yanghui.distributed.framework.client.ConnectionUrl;
@@ -70,7 +71,13 @@ public class CommonTest {
             Method method = EchoService.class.getMethod("oneWayTest", List.class, String.class);
             Type[] genericParameterTypes = method.getGenericParameterTypes();
             for(Type type : genericParameterTypes){
-                System.out.println(type.getTypeName());
+                System.out.println("原来："+type.getTypeName());
+                try {
+                    Class typeBack = Class.forName(type.getTypeName());
+                    System.out.println("转回来："+typeBack);
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
             }
         } catch (NoSuchMethodException e) {
             e.printStackTrace();

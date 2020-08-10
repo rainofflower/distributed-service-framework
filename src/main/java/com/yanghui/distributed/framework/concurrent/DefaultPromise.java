@@ -139,7 +139,7 @@ public class DefaultPromise<T> implements Promise<T> {
             listeners.add(listener);
         }
         //处理完了立即触发所有监听器，包括刚刚新增的
-        // 注意监听器始终是在指定的回调线程池中执行，不管add的时候任务是否已经执行完成
+        // 只要回调线程池不为空，不管add的时候任务是否已经执行完成，都会在回调线程池中执行
         if(isDone()){
             notifyAllListeners();
         }
@@ -260,22 +260,28 @@ public class DefaultPromise<T> implements Promise<T> {
      * 唤醒监听器
      */
     protected void notifyAllListeners(){
-        this.callbackExecutor.execute(()->{
-            synchronized (this) {
-                //需要先锁住，再判断listeners是否为空
-                if (this.listeners != null && !this.listeners.isEmpty()) {
-                    List<Listener> listeners = this.listeners;
-                    this.listeners = null;
-                    for (Listener l : listeners) {
-                        try{
-                            l.operationComplete(this);
-                        }catch (Throwable t){
-                            //忽略用户自定义回调方法异常
-                        }
+        if(this.callbackExecutor != null) {
+            this.callbackExecutor.execute(() -> notifyAllListeners0());
+        }else{
+            notifyAllListeners0();
+        }
+    }
+
+    private void notifyAllListeners0(){
+        synchronized (this) {
+            //需要先锁住，再判断listeners是否为空
+            if (this.listeners != null && !this.listeners.isEmpty()) {
+                List<Listener> listeners = this.listeners;
+                this.listeners = null;
+                for (Listener l : listeners) {
+                    try {
+                        l.operationComplete(this);
+                    } catch (Throwable t) {
+                        //忽略用户自定义回调方法异常
                     }
                 }
             }
-        });
+        }
     }
 
     public Executor getCallbackExecutor() {

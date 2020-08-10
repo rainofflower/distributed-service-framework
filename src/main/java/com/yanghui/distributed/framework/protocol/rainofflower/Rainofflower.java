@@ -2306,11 +2306,23 @@ public final class Rainofflower {
         getInfoBytes();
 
     /**
+     * <code>string returnType = 3;</code>
+     * @return The returnType.
+     */
+    java.lang.String getReturnType();
+    /**
+     * <code>string returnType = 3;</code>
+     * @return The bytes for returnType.
+     */
+    com.google.protobuf.ByteString
+        getReturnTypeBytes();
+
+    /**
      * <pre>
      *使用json存
      * </pre>
      *
-     * <code>string result = 3;</code>
+     * <code>string result = 4;</code>
      * @return The result.
      */
     java.lang.String getResult();
@@ -2319,7 +2331,7 @@ public final class Rainofflower {
      *使用json存
      * </pre>
      *
-     * <code>string result = 3;</code>
+     * <code>string result = 4;</code>
      * @return The bytes for result.
      */
     com.google.protobuf.ByteString
@@ -2339,6 +2351,7 @@ public final class Rainofflower {
     }
     private BizResponse() {
       info_ = "";
+      returnType_ = "";
       result_ = "";
     }
 
@@ -2384,6 +2397,12 @@ public final class Rainofflower {
               break;
             }
             case 26: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              returnType_ = s;
+              break;
+            }
+            case 34: {
               java.lang.String s = input.readStringRequireUtf8();
 
               result_ = s;
@@ -2467,14 +2486,50 @@ public final class Rainofflower {
       }
     }
 
-    public static final int RESULT_FIELD_NUMBER = 3;
+    public static final int RETURNTYPE_FIELD_NUMBER = 3;
+    private volatile java.lang.Object returnType_;
+    /**
+     * <code>string returnType = 3;</code>
+     * @return The returnType.
+     */
+    public java.lang.String getReturnType() {
+      java.lang.Object ref = returnType_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        returnType_ = s;
+        return s;
+      }
+    }
+    /**
+     * <code>string returnType = 3;</code>
+     * @return The bytes for returnType.
+     */
+    public com.google.protobuf.ByteString
+        getReturnTypeBytes() {
+      java.lang.Object ref = returnType_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        returnType_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int RESULT_FIELD_NUMBER = 4;
     private volatile java.lang.Object result_;
     /**
      * <pre>
      *使用json存
      * </pre>
      *
-     * <code>string result = 3;</code>
+     * <code>string result = 4;</code>
      * @return The result.
      */
     public java.lang.String getResult() {
@@ -2494,7 +2549,7 @@ public final class Rainofflower {
      *使用json存
      * </pre>
      *
-     * <code>string result = 3;</code>
+     * <code>string result = 4;</code>
      * @return The bytes for result.
      */
     public com.google.protobuf.ByteString
@@ -2531,8 +2586,11 @@ public final class Rainofflower {
       if (!getInfoBytes().isEmpty()) {
         com.google.protobuf.GeneratedMessageV3.writeString(output, 2, info_);
       }
+      if (!getReturnTypeBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 3, returnType_);
+      }
       if (!getResultBytes().isEmpty()) {
-        com.google.protobuf.GeneratedMessageV3.writeString(output, 3, result_);
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 4, result_);
       }
       unknownFields.writeTo(output);
     }
@@ -2550,8 +2608,11 @@ public final class Rainofflower {
       if (!getInfoBytes().isEmpty()) {
         size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, info_);
       }
+      if (!getReturnTypeBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(3, returnType_);
+      }
       if (!getResultBytes().isEmpty()) {
-        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(3, result_);
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(4, result_);
       }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
@@ -2572,6 +2633,8 @@ public final class Rainofflower {
           != other.getCode()) return false;
       if (!getInfo()
           .equals(other.getInfo())) return false;
+      if (!getReturnType()
+          .equals(other.getReturnType())) return false;
       if (!getResult()
           .equals(other.getResult())) return false;
       if (!unknownFields.equals(other.unknownFields)) return false;
@@ -2589,6 +2652,8 @@ public final class Rainofflower {
       hash = (53 * hash) + getCode();
       hash = (37 * hash) + INFO_FIELD_NUMBER;
       hash = (53 * hash) + getInfo().hashCode();
+      hash = (37 * hash) + RETURNTYPE_FIELD_NUMBER;
+      hash = (53 * hash) + getReturnType().hashCode();
       hash = (37 * hash) + RESULT_FIELD_NUMBER;
       hash = (53 * hash) + getResult().hashCode();
       hash = (29 * hash) + unknownFields.hashCode();
@@ -2728,6 +2793,8 @@ public final class Rainofflower {
 
         info_ = "";
 
+        returnType_ = "";
+
         result_ = "";
 
         return this;
@@ -2758,6 +2825,7 @@ public final class Rainofflower {
         com.yanghui.distributed.framework.protocol.rainofflower.Rainofflower.BizResponse result = new com.yanghui.distributed.framework.protocol.rainofflower.Rainofflower.BizResponse(this);
         result.code_ = code_;
         result.info_ = info_;
+        result.returnType_ = returnType_;
         result.result_ = result_;
         onBuilt();
         return result;
@@ -2812,6 +2880,10 @@ public final class Rainofflower {
         }
         if (!other.getInfo().isEmpty()) {
           info_ = other.info_;
+          onChanged();
+        }
+        if (!other.getReturnType().isEmpty()) {
+          returnType_ = other.returnType_;
           onChanged();
         }
         if (!other.getResult().isEmpty()) {
@@ -2953,13 +3025,89 @@ public final class Rainofflower {
         return this;
       }
 
+      private java.lang.Object returnType_ = "";
+      /**
+       * <code>string returnType = 3;</code>
+       * @return The returnType.
+       */
+      public java.lang.String getReturnType() {
+        java.lang.Object ref = returnType_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          returnType_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>string returnType = 3;</code>
+       * @return The bytes for returnType.
+       */
+      public com.google.protobuf.ByteString
+          getReturnTypeBytes() {
+        java.lang.Object ref = returnType_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          returnType_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>string returnType = 3;</code>
+       * @param value The returnType to set.
+       * @return This builder for chaining.
+       */
+      public Builder setReturnType(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        returnType_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string returnType = 3;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearReturnType() {
+        
+        returnType_ = getDefaultInstance().getReturnType();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string returnType = 3;</code>
+       * @param value The bytes for returnType to set.
+       * @return This builder for chaining.
+       */
+      public Builder setReturnTypeBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        returnType_ = value;
+        onChanged();
+        return this;
+      }
+
       private java.lang.Object result_ = "";
       /**
        * <pre>
        *使用json存
        * </pre>
        *
-       * <code>string result = 3;</code>
+       * <code>string result = 4;</code>
        * @return The result.
        */
       public java.lang.String getResult() {
@@ -2979,7 +3127,7 @@ public final class Rainofflower {
        *使用json存
        * </pre>
        *
-       * <code>string result = 3;</code>
+       * <code>string result = 4;</code>
        * @return The bytes for result.
        */
       public com.google.protobuf.ByteString
@@ -3000,7 +3148,7 @@ public final class Rainofflower {
        *使用json存
        * </pre>
        *
-       * <code>string result = 3;</code>
+       * <code>string result = 4;</code>
        * @param value The result to set.
        * @return This builder for chaining.
        */
@@ -3019,7 +3167,7 @@ public final class Rainofflower {
        *使用json存
        * </pre>
        *
-       * <code>string result = 3;</code>
+       * <code>string result = 4;</code>
        * @return This builder for chaining.
        */
       public Builder clearResult() {
@@ -3033,7 +3181,7 @@ public final class Rainofflower {
        *使用json存
        * </pre>
        *
-       * <code>string result = 3;</code>
+       * <code>string result = 4;</code>
        * @param value The bytes for result to set.
        * @return This builder for chaining.
        */
@@ -4164,19 +4312,20 @@ public final class Rainofflower {
       "ttachmentEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001" +
       "(\t:\0028\001\"Y\n\nBizRequest\022\025\n\rinterfaceName\030\001 " +
       "\001(\t\022\022\n\nmethodName\030\002 \001(\t\022\022\n\nparamTypes\030\003 " +
-      "\003(\t\022\014\n\004args\030\004 \003(\t\"9\n\013BizResponse\022\014\n\004code" +
-      "\030\001 \001(\r\022\014\n\004info\030\002 \001(\t\022\016\n\006result\030\003 \001(\t\"\216\002\n" +
-      "\007Message\022O\n\006header\030\001 \001(\0132?.com.yanghui.d" +
-      "istributed.framework.protocol.rainofflow" +
-      "er.Header\022W\n\nbizRequest\030\002 \001(\0132C.com.yang" +
-      "hui.distributed.framework.protocol.raino" +
-      "fflower.BizRequest\022Y\n\013bizResponse\030\003 \001(\0132" +
-      "D.com.yanghui.distributed.framework.prot" +
-      "ocol.rainofflower.BizResponse*\236\001\n\010HeadTy" +
-      "pe\022\017\n\013BIZ_REQUEST\020\000\022\020\n\014BIZ_RESPONSE\020\001\022\017\n" +
-      "\013BIZ_ONE_WAY\020\002\022\025\n\021HANDSHAKE_REQUEST\020\003\022\026\n" +
-      "\022HANDSHAKE_RESPONSE\020\004\022\026\n\022HEART_BEAT_REQU" +
-      "EST\020\005\022\027\n\023HEART_BEAT_RESPONSE\020\006b\006proto3"
+      "\003(\t\022\014\n\004args\030\004 \003(\t\"M\n\013BizResponse\022\014\n\004code" +
+      "\030\001 \001(\r\022\014\n\004info\030\002 \001(\t\022\022\n\nreturnType\030\003 \001(\t" +
+      "\022\016\n\006result\030\004 \001(\t\"\216\002\n\007Message\022O\n\006header\030\001" +
+      " \001(\0132?.com.yanghui.distributed.framework" +
+      ".protocol.rainofflower.Header\022W\n\nbizRequ" +
+      "est\030\002 \001(\0132C.com.yanghui.distributed.fram" +
+      "ework.protocol.rainofflower.BizRequest\022Y" +
+      "\n\013bizResponse\030\003 \001(\0132D.com.yanghui.distri" +
+      "buted.framework.protocol.rainofflower.Bi" +
+      "zResponse*\236\001\n\010HeadType\022\017\n\013BIZ_REQUEST\020\000\022" +
+      "\020\n\014BIZ_RESPONSE\020\001\022\017\n\013BIZ_ONE_WAY\020\002\022\025\n\021HA" +
+      "NDSHAKE_REQUEST\020\003\022\026\n\022HANDSHAKE_RESPONSE\020" +
+      "\004\022\026\n\022HEART_BEAT_REQUEST\020\005\022\027\n\023HEART_BEAT_" +
+      "RESPONSE\020\006b\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -4206,7 +4355,7 @@ public final class Rainofflower {
     internal_static_com_yanghui_distributed_framework_protocol_rainofflower_BizResponse_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_com_yanghui_distributed_framework_protocol_rainofflower_BizResponse_descriptor,
-        new java.lang.String[] { "Code", "Info", "Result", });
+        new java.lang.String[] { "Code", "Info", "ReturnType", "Result", });
     internal_static_com_yanghui_distributed_framework_protocol_rainofflower_Message_descriptor =
       getDescriptor().getMessageTypes().get(3);
     internal_static_com_yanghui_distributed_framework_protocol_rainofflower_Message_fieldAccessorTable = new

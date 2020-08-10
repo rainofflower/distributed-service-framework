@@ -30,7 +30,8 @@ message BizRequest{
 message BizResponse{
     uint32 code = 1;
     string info = 2;
-    string result = 3; //使用json存
+    string returnType = 3;
+    string result = 4; //使用json存
 }
 
 message Message{

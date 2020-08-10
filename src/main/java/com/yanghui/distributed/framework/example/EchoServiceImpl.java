@@ -1,7 +1,10 @@
 package com.yanghui.distributed.framework.example;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 /**
  * 服务提供者
@@ -39,5 +42,27 @@ public class EchoServiceImpl implements EchoService{
         String s = "test2执行了业务";
         System.out.println(s);
         return s;
+    }
+
+    @Override
+    public User getUserByName(String name){
+        return new User(name,20);
+    }
+
+
+    @Override
+    public List<User> listUser(String name) {
+        List<User> list = new ArrayList<>();
+        list.add(new User(name,18));
+        list.add(new User(name,19));
+        list.add(new User(name,20));
+        return list;
+    }
+
+    @Override
+    public List<User> matchUser(List<User> users, String name){
+        return users.stream()
+                .filter(u -> Objects.equals(u.getName(),name))
+                .collect(Collectors.toList());
     }
 }

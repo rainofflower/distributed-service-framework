@@ -9,6 +9,7 @@ import com.yanghui.distributed.framework.concurrent.Listener;
 import com.yanghui.distributed.framework.protocol.rainofflower.Rainofflower;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -16,13 +17,16 @@ import java.util.concurrent.Executor;
 /**
  * @author YangHui
  */
+@Slf4j
 public class RpcClientHandler extends ChannelInboundHandlerAdapter {
 
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         Rainofflower.Message message = (Rainofflower.Message)msg;
         Rainofflower.BizResponse bizResponse = message.getBizResponse();
         String resultJson = bizResponse.getResult();
-        Object result = JSONObject.parse(resultJson);
+        String returnType = bizResponse.getReturnType();
+        Class<?> clazz = Class.forName(returnType);
+        Object result = JSONObject.parseObject(resultJson,clazz);
         String idStr = message.getHeader().getAttachmentOrThrow(RpcConstants.REQUEST_ID);
         int id = Integer.parseInt(idStr);
         Connection connection = ctx.channel().attr(Connection.CONNECTION).get();
@@ -51,7 +55,9 @@ public class RpcClientHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         if(cause instanceof RpcException){
-
+            log.error("[RpcClientHandler] {}",cause.getMessage());
+        }else{
+            log.error("[RpcClientHandler] ",cause);
         }
     }
 }

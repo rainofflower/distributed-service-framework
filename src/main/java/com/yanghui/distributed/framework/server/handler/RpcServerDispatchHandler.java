@@ -19,15 +19,15 @@ import java.lang.reflect.Method;
  */
 @Slf4j
 @ChannelHandler.Sharable
-public class RpcServerDispatchHandler extends ChannelInboundHandlerAdapter {
+public class RpcServerDispatchHandler extends SimpleChannelInboundHandler {
 
-    private Server server;
+    private final Server server;
 
     public RpcServerDispatchHandler(Server server){
         this.server = server;
     }
 
-    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception{
+    public void channelRead0(ChannelHandlerContext ctx, Object msg){
 //        String protocol = ctx.channel().attr(Server.PROTOCOL).get();
         Rainofflower.Message message = (Rainofflower.Message) msg;
         Rainofflower.BizRequest bizRequest = message.getBizRequest();
