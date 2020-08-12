@@ -2,6 +2,7 @@ package com.yanghui.distributed.framework.client;
 
 import com.alibaba.fastjson.JSONObject;
 import com.yanghui.distributed.framework.common.RpcConstants;
+import com.yanghui.distributed.framework.common.util.ClassTypeUtils;
 import com.yanghui.distributed.framework.common.util.CommonUtils;
 import com.yanghui.distributed.framework.core.exception.RpcException;
 import com.yanghui.distributed.framework.concurrent.InvokeFuture;
@@ -26,7 +27,7 @@ public class RpcClientHandler extends ChannelInboundHandlerAdapter {
         Rainofflower.BizResponse bizResponse = message.getBizResponse();
         String resultJson = bizResponse.getResult();
         String returnType = bizResponse.getReturnType();
-        Class<?> clazz = Class.forName(returnType);
+        Class clazz = ClassTypeUtils.getClass(returnType);
         Object result = JSONObject.parseObject(resultJson,clazz);
         String idStr = message.getHeader().getAttachmentOrThrow(RpcConstants.REQUEST_ID);
         int id = Integer.parseInt(idStr);
